@@ -5,7 +5,7 @@ Microservice for managing grocery items.
 Available endpoints:
 - [`/live`](https://multimo.ml/stats/live): Liveliness check
 - [`/ready`](https://multimo.ml/stats/ready): Readiness check
-- [`/v1/all`](https://multimo.ml/stats/v1/all): Returns all statistics
+- [`/v1/all`](https://multimo.ml/stats/all): Returns all statistics
 
 Branches:
 - [`main`](https://github.com/MultimoML/statistics/tree/main): Contains latest development version
