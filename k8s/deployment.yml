@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: statistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: statistics
+  template:
+    metadata:
+      labels:
+        app: statistics
+    spec:
+      containers:
+        - name: statistics
+          image: ghcr.io/multimoml/statistics:latest
+          env:
+            - name: ACTIVE_ENV
+              value: "prod"
+            - name: PORT
+              value: "6004"
+          ports:
+            - containerPort: 6004
+              name: server
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /stats/live
+              port: server
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /stats/ready
+              port: server
+            initialDelaySeconds: 10
+            periodSeconds: 3
+      terminationGracePeriodSeconds: 10
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: statistics
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6004
+      targetPort: server
+  selector:
+    app: statistics
