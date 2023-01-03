@@ -35,8 +35,8 @@ jobs:
         with:
           token: ${{ secrets.DO_ACCESS_TOKEN }}
 
-      - name: Set k8s deployment database password from Github secrets
-        run: sed -i "s/<DB_PASSWORD>/${{ secrets.DB_PASSWORD }}/g" k8s/deployment.yaml
+#      - name: Set k8s deployment database password from Github secrets
+#        run: sed -i "s/<DB_PASSWORD>/${{ secrets.DB_PASSWORD }}/g" k8s/deployment.yaml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 prod

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: statistics
-          image: ghcr.io/multimoml/statistics:latest
+          image: ghcr.io/multimoml/stats:latest
           env:
             - name: ACTIVE_ENV
               value: "prod"
