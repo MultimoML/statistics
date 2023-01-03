@@ -1,0 +1,37 @@
+version: '1'
+
+services:
+
+  stats:
+    image: multimoml/stats:latest
+    container_name: stats
+    restart: unless-stopped
+    networks:
+      - products-db
+      - traefik-proxy
+    #    ports:
+    #      - "6004:6004"
+    environment:
+
+      # MongoDB
+      M_USERNAME: ${M_USERNAME}
+      M_PASSWORD: ${M_PASSWORD}
+      DATABASE: ${DATABASE}
+
+      # stats
+      ENVIRONMENT: "prod"
+      M_SERVER: products-db:27017
+      RUN_INTERVAL: 14400 # 4h in seconds
+      PORT: 6004
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-proxy # needed if you have multiple networks and no default
+      traefik.http.routers.stats.rule: Host(`${DOMAIN}`) && PathPrefix(`/stats/`)
+      traefik.http.routers.stats.entrypoints: https
+      traefik.http.services.stats.loadbalancer.server.port: 6004
+
+networks:
+  products-db:
+    external: true
+  traefik-proxy:
+    external: true
