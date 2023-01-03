@@ -1,0 +1,48 @@
+name: Build a tagged Docker image and publish it
+
+on:
+  push:
+    branches: [prod]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - 'Makefile'
+      - '.gitignore'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log into GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/multimoml/stats:v1.0.0,ghcr.io/multimoml/stats:latest
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+
+      - name: Set k8s deployment database password from Github secrets
+        run: sed -i "s/<DB_PASSWORD>/${{ secrets.DB_PASSWORD }}/g" k8s/deployment.yaml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 prod
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f k8s/deployment.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/stats
