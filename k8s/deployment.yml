@@ -51,3 +51,23 @@ spec:
       targetPort: server
   selector:
     app: statistics
+  
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: statistics
+  namespace: default
+
+spec:
+  entryPoints:
+    - websecure
+
+  routes:
+    - match: Host(`multimo.ml`) && PathPrefix(`/stats/`)
+      kind: Rule
+      services:
+        - name: statistics
+          port: 6004
